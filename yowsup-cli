@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/local/bin/python2.7
 __version__ = "2.0.15"
 __author__ = "Tarek Galal"
 
@@ -251,6 +251,9 @@ class DemosArgParser(YowArgParser):
         echoOpts = self.add_argument_group("Echo client demo")
         echoOpts.add_argument('-e', '--echo', action = "store_true", help = "Start the Yowsup Echo client")
 
+        bridgeOpts = self.add_argument_group("Bridge client demo")
+        bridgeOpts.add_argument('-b', '--bridge', action = "store_true", help = "Start the Yowsup bridge client")
+
         sendOpts = self.add_argument_group("Send client demo")
         sendOpts.add_argument('-s', '--send', action="store", help = "Send a message to specified phone number, "
                                                                      "wait for server receipt and exit",
@@ -270,6 +273,8 @@ class DemosArgParser(YowArgParser):
             self.startEcho()
         elif self.args["send"]:
             self.startSendClient()
+        elif self.args["bridge"]:
+            self.startBridge()
         elif self.args["sync"]:
             self.startSyncContacts()
         else:
@@ -305,6 +310,20 @@ class DemosArgParser(YowArgParser):
         try:
             self.printInfoText()
             stack = echoclient.YowsupEchoStack(credentials, not self.args["unmoxie"])
+            stack.start()
+        except KeyboardInterrupt:
+            print("\nYowsdown")
+            sys.exit(0)
+    
+    def startBridge(self):
+        from yowsup.demos import bridgeclient
+        credentials = self._getCredentials()
+        if not credentials:
+            print("Error: You must specify a configuration method")
+            sys.exit(1)
+        try:
+            self.printInfoText()
+            stack = bridgeclient.YowsupBridgeStack(credentials, not self.args["unmoxie"])
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
